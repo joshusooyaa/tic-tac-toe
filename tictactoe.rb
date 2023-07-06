@@ -2,9 +2,14 @@ class Board
   attr_reader :state
   attr_accessor :empty_cells
 
-  def initialize
-    @state = Array.new(3) { Array.new(3) { "" } }
+  def initialize(board)
+    @state = board
     @empty_cells = 9
+  end
+
+  def self.create_board()
+    board = Array.new(3) { Array.new(3) { "" } }
+    Board.new(board)
   end
 
   # Update a cell with the player's marker
@@ -24,7 +29,7 @@ class Board
     open_cells = @state.flatten.each_with_index.reduce([]) do |result, (cell, index)| 
       row += 1 if index >= 1 && index % 3 == 0
       cell_number = index % 3 + 1
-      result.append("#{row_names[row]}#{cell_number}")
+      result.append("#{row_names[row]}#{cell_number}") if cell.empty?
       result
     end
   end
@@ -33,7 +38,7 @@ end
 
 
 class Player
-  attr_accessor :name, :marker, :score
+  attr_accessor :name, :marker, :wins
 
   def initialize(name, marker)
     @name = name
@@ -46,10 +51,12 @@ end
 
 class Game
   def initialize(player1_name, player2_name)
-    @board = Board.new()
+    @board = Board.create_board
     @player1 = Player.new(player1_name, 'X')
     @player2 = Player.new(player2_name, 'O')
     @turn = @player1
+    @first_turn = @player1
+    @second_turn = @player2
   end
 
   def self.initialize_game()
@@ -64,14 +71,15 @@ class Game
   private
 
   def game_loop()
-    game_end = round_end = false
+    game_end = false
     until game_end
-      display_board()
+      round_end = false
       player_move = get_player_move(@turn, @board.open_cells)
-      update_board(@turn, player_move)
-      won = win?(@turn)
 
-      # game_end = play_again? if round_end
+      update_board(@turn, player_move)
+      display_board()
+  
+      game_end = end_game?
     end
   end
 
@@ -97,6 +105,7 @@ class Game
   def update_board(player, player_move)
     row, column = convert_move_to_index(player_move)
     @board.update_cell(player.marker, row, column)
+    @board.empty_cells -= 1
   end
 
 
@@ -128,6 +137,32 @@ class Game
 
   def three_in_a_row?(line, opposite_marker)
     (line.include?('') || line.include?(opposite_marker)) ? false : true
+  end
+
+
+  def end_game?()
+    won = win?(@turn)
+    @turn.wins += 1 if won
+    tie = (@board.empty_cells == 0) unless won
+    
+    unless won || tie
+      @turn = @turn == @player1 ? @player2 : @player1 unless won || tie
+      return false
+    end
+
+    # Round over since there was a win or tie
+    puts "#{@turn.name} wins!\nThe score is now:\n#{@player1.name}: #{@player1.wins}\n#{@player2.name}: #{@player2.wins}" if won
+    puts "Round tie!" if tie
+    
+    @turn, @first_turn, @second_turn = @second_turn, @second_turn, @first_turn
+    @board = Board.create_board
+
+    return play_again? ? false : true
+  end
+
+  def play_again?()
+    puts "Play again? Yes/No"
+    return gets.chomp().downcase == 'yes' ? true : false
   end
 end
 

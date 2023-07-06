@@ -21,12 +21,13 @@ With the use of a `Player` class we'll have three variables: name, player_marker
 This is the most important aspect of the game. It's, well, the game itself. It'll use the board and the players to keep track of the game state and determine the winner (or if there is a tie) based on several factors. 
 
 The `Game` class will need two variables:
-1. Instance variable: `Board`
-2. Instance variable: `Player` (x2)
-3. Turn (who's move it is)
+1. `Board`
+2. Player1 `Player` and Player2 `Player`
+3. Turn (who's turn it is)
 
 Additionally, since `Game` will be responsibile for running the game, several methods are necessary to do so:
 1. Move - determine who's move it is
+    * Tied then with getting the player's move
 2. Check win - determine if someone has won or not
 3. Helper methods to restart the game (and or rounds) when someone wins/loses or ties
 

@@ -1,8 +1,10 @@
 class Board
   attr_reader :state
+  attr_accessor :empty_cells
 
   def initialize
     @state = Array.new(3) { Array.new(3) { "" } }
+    @empty_cells = 9
   end
 
   # Update a cell with the player's marker
@@ -62,12 +64,14 @@ class Game
   private
 
   def game_loop()
-    game_end = false
+    game_end = round_end = false
     until game_end
       display_board()
       player_move = get_player_move(@turn, @board.open_cells)
       update_board(@turn, player_move)
-      # check_game_status()
+      won = win?(@turn)
+
+      # game_end = play_again? if round_end
     end
   end
 
@@ -83,7 +87,7 @@ class Game
   def get_player_move(player, available_moves)
     move = ""
     until available_moves.include?(move.upcase)
-      puts "Please enter a valid cell from #{available_moves.join(", ")}!"
+      puts "#{player.name} - Please enter a valid cell from #{available_moves.join(", ")}"
       move = gets.chomp()
     end
     move
@@ -93,7 +97,6 @@ class Game
   def update_board(player, player_move)
     row, column = convert_move_to_index(player_move)
     @board.update_cell(player.marker, row, column)
-
   end
 
 
@@ -103,6 +106,28 @@ class Game
     when 'B' then return 1, player_move[1].to_i - 1
     when 'C' then return 2, player_move[1].to_i - 1
     end
+  end
+
+
+  def win?(player)
+    opposite_marker = player.marker == 'X' ? 'O' : 'X'
+    board = @board.state
+    
+    # Check for row win
+    board.each { |row| return true if three_in_a_row?(row, opposite_marker) }
+
+    # Check for column win
+    board.transpose.each { |row| return true if three_in_a_row?(row, opposite_marker) }
+
+    # Check for cross win
+    return true if three_in_a_row?([board[0][0], board[1][1], board[2][2]], opposite_marker)
+    return true if three_in_a_row?([board[0][2], board[1][1], board[2][0]], opposite_marker)
+
+    false
+  end
+
+  def three_in_a_row?(line, opposite_marker)
+    (line.include?('') || line.include?(opposite_marker)) ? false : true
   end
 end
 

@@ -17,17 +17,29 @@ end
 class Player
   attr_accessor :name, :player_marker, :score
 
-  def initialize(name, player_marker, wins)
+  def initialize(name, player_marker)
     @name = name
     @player_marker = player_marker
     @wins = 0
   end
+end
 
-  # Create a new player, either player 1 or player 2 (default if 1 not passed)
-  # 
-  # @return [Player]: A new Player
-  def self.create_player(name, player_number)
-    player_number == 1 ? Player.new(name, 'x', 0) : Player.new(name, 'o', 0)
+
+class Game
+  def initialize(player1_name, player2_name)
+    @board = Board.new()
+    @player1 = Player.new(player1_name, 'x')
+    @player2 = Player.new(player2_name, 'o')
+    @turn = @player1
+  end
+
+  def self.start_game()
+    puts "Welcome to Tic-Tac-Toe!\nPlease Enter Player1 Name: "
+    player1_name = gets.chomp() 
+    puts "Please Enter Player2 Name: "
+    player2_name = gets.chomp() 
+    Game.new(player1_name, player2_name)
   end
 end
 
+p Game.start_game()

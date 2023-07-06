@@ -2,7 +2,7 @@ class Board
   attr_reader :state
 
   def initialize
-    @state = Array.new(3, Array.new(3))
+    @state = Array.new(3) { Array.new(3) { "" } }
   end
 
   # Update a cell with the player's marker
@@ -28,18 +28,36 @@ end
 class Game
   def initialize(player1_name, player2_name)
     @board = Board.new()
-    @player1 = Player.new(player1_name, 'x')
-    @player2 = Player.new(player2_name, 'o')
+    @player1 = Player.new(player1_name, 'X')
+    @player2 = Player.new(player2_name, 'O')
     @turn = @player1
   end
 
-  def self.start_game()
+  def self.initialize_game()
     puts "Welcome to Tic-Tac-Toe!\nPlease Enter Player1 Name: "
     player1_name = gets.chomp() 
     puts "Please Enter Player2 Name: "
     player2_name = gets.chomp() 
-    Game.new(player1_name, player2_name)
+    game = Game.new(player1_name, player2_name)
+    game.send(:game_loop)
+  end
+
+  private
+  def game_loop()
+    game_end = false
+    until game_end
+      display_board()
+      break
+    end
+  end
+
+  private
+  def display_board()
+    @board.state.each do |row|
+      puts row.map { |cell| cell.empty? ? ' ' : cell }.join(' | ')
+      puts '-' * (row.length * 3) unless row.object_id == @board.state.last.object_id
+    end
   end
 end
 
-p Game.start_game()
+Game.initialize_game()

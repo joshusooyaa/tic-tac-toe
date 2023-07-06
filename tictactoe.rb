@@ -31,11 +31,11 @@ end
 
 
 class Player
-  attr_accessor :name, :player_marker, :score
+  attr_accessor :name, :marker, :score
 
-  def initialize(name, player_marker)
+  def initialize(name, marker)
     @name = name
-    @player_marker = player_marker
+    @marker = marker
     @wins = 0
   end
 
@@ -66,15 +66,16 @@ class Game
     until game_end
       display_board()
       player_move = get_player_move(@turn, @board.open_cells)
-      break
+      update_board(@turn, player_move)
+      # check_game_status()
     end
   end
 
 
   def display_board()
     @board.state.each do |row|
-      puts row.map { |cell| cell.empty? ? ' ' : cell }.join(' | ')
-      puts '-' * (row.length * 3) unless row.object_id == @board.state.last.object_id
+      puts row.map { |cell| cell.empty? ? '   ' : " #{cell} " }.join('|')
+      puts '-' * (row.length * 4 - 1) unless row.object_id == @board.state.last.object_id
     end
   end
 
@@ -84,6 +85,23 @@ class Game
     until available_moves.include?(move.upcase)
       puts "Please enter a valid cell from #{available_moves.join(", ")}!"
       move = gets.chomp()
+    end
+    move
+  end
+
+
+  def update_board(player, player_move)
+    row, column = convert_move_to_index(player_move)
+    @board.update_cell(player.marker, row, column)
+
+  end
+
+
+  def convert_move_to_index(player_move)
+    case player_move[0]
+    when 'A' then return 0, player_move[1].to_i - 1
+    when 'B' then return 1, player_move[1].to_i - 1
+    when 'C' then return 2, player_move[1].to_i - 1
     end
   end
 end
